@@ -1,6 +1,5 @@
 package com.manga.artisttracker.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
@@ -9,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 @Service
-@Slf4j
 public class H2BackupService {
 
     private final DataSource dataSource;
@@ -18,15 +16,10 @@ public class H2BackupService {
         this.dataSource = dataSource;
     }
 
-    public void exportDatabase(String backupPath) throws SQLException {
+    public void exportDatabase(String backupFilePath) throws SQLException {
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-
-            String sql = "BACKUP TO '" + backupPath + "'";
-            statement.execute(sql);
-        } catch (SQLException e) {
-            log.error("Failed to export database to {}: {}", backupPath, e.getMessage());
-            throw e;
+             Statement stmt = connection.createStatement()) {
+            stmt.execute("BACKUP TO '" + backupFilePath.replace("\\", "/") + "'");
         }
     }
 }
