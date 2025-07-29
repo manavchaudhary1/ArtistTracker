@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Map;
@@ -297,6 +301,8 @@ public class ArtistTrackerService {
 
     @Transactional
     public ArtistTracker addArtist(String artistName) throws IOException {
+        artistName = URLEncoder.encode(artistName, StandardCharsets.UTF_8).replace("+", "%20");;
+
         Optional<ArtistTracker> existing = artistRepository.findByServiceNameAndArtistName(serviceName, artistName);
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Artist already tracked: " + artistName);
@@ -309,7 +315,7 @@ public class ArtistTrackerService {
             throw new IllegalArgumentException("No works found for artist: " + artistName);
         }
 
-        String latestId = String.valueOf(postIds.get(0));
+        String latestId = String.valueOf(postIds.getFirst());
 
         LocalDateTime galleryDate;
         try {
@@ -326,28 +332,6 @@ public class ArtistTrackerService {
 
         ArtistTracker newArtist = new ArtistTracker(serviceName, artistName, latestId, galleryDate);
         return artistRepository.save(newArtist);
-    }
-
-    @Transactional
-    protected void updateArtistRecord(ArtistTracker artist, String latestId, GalleryInfo latestGalleryInfo) {
-        try {
-            LocalDateTime galleryDate;
-
-            if (latestGalleryInfo != null && latestGalleryInfo.getDate() != null) {
-                galleryDate = parseGalleryDate(latestGalleryInfo.getDate());
-            } else {
-                galleryDate = LocalDateTime.now();
-            }
-
-            artist.setLatestId(latestId);
-            artist.setLastUpdated(galleryDate);
-            artistRepository.save(artist);
-        } catch (Exception e) {
-            log.error("Error updating artist record for ID {}: {}", latestId, e.getMessage());
-            artist.setLatestId(latestId);
-            artist.setLastUpdated(LocalDateTime.now());
-            artistRepository.save(artist);
-        }
     }
 
     private LocalDateTime parseGalleryDate(String dateString) {
