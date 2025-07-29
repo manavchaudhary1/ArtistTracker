@@ -39,10 +39,11 @@ public class DatabaseInitializer {
             if (resource.exists()) {
                 restoreDatabase(resource.getFile().getAbsolutePath());
                 log.info("Database restored from backup");
+                log.info("H2 DB URL: {}", dataSource.getConnection().getMetaData().getURL());
             } else {
                 log.info("No backup file found, starting with fresh database");
             }
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             log.error("Failed to restore database from backup", e);
         }
     }
