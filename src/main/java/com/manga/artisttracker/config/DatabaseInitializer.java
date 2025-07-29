@@ -7,10 +7,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -35,32 +35,29 @@ public class DatabaseInitializer {
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationStart() {
         try {
-            Resource resource = resourceLoader.getResource(BACKUP_FILE);
+            Resource resource = resourceLoader.getResource("classpath:db-backup.zip");
             if (resource.exists()) {
-                restoreDatabase(resource.getFile().getAbsolutePath());
-                log.info("Database restored from backup");
-                log.info("H2 DB URL: {}", dataSource.getConnection().getMetaData().getURL());
+                restoreDatabase(resource.getInputStream(), Paths.get("data"));
+                log.info("Database restored from zip backup");
             } else {
                 log.info("No backup file found, starting with fresh database");
             }
-        } catch (SQLException | IOException e) {
+        } catch (Exception e) {
             log.error("Failed to restore database from backup", e);
         }
     }
 
-    private void restoreDatabase(String zipPath) throws IOException {
-        File targetDir = new File("data");
-        if (!targetDir.exists()) {
-            targetDir.mkdirs();
-        }
 
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipPath))) {
+    private void restoreDatabase(InputStream zipStream, Path outputDir) throws IOException {
+        try (ZipInputStream zis = new ZipInputStream(zipStream)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                File outFile = new File(targetDir, entry.getName());
-                try (FileOutputStream fos = new FileOutputStream(outFile)) {
-                    zis.transferTo(fos);
+                Path filePath = outputDir.resolve(entry.getName());
+                Files.createDirectories(filePath.getParent());
+                try (OutputStream os = Files.newOutputStream(filePath)) {
+                    zis.transferTo(os);
                 }
+                zis.closeEntry();
             }
         }
     }
