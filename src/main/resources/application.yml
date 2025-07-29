@@ -1,0 +1,37 @@
+# application.yml
+spring:
+    application:
+        name: artist-tracker
+
+    datasource:
+        url: jdbc:h2:file:./data/artisttracker
+        driver-class-name: org.h2.Driver
+        username: sa
+        password:
+    h2:
+        console:
+            enabled: true
+            path: /h2-console
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+        hibernate:
+            ddl-auto: update
+        show-sql: false
+        properties:
+            hibernate:
+            format_sql: true
+    mvc:
+      view:
+          prefix: /WEB-INF/views/
+          suffix: .jsp
+logging:
+    level:
+        com.manga.artisttracker: INFO
+        org.springframework.web.client: WARN
+
+server:
+    port: 8080
+    servlet:
+        jsp:
+            init-parameters:
+                development: true
