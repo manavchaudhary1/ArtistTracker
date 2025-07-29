@@ -371,7 +371,7 @@
 
         artists.forEach(artist => {
             const formattedDate = formatDate(artist.lastUpdated);
-            const escapedArtistName = escapeHtml(artist.artistName);
+            const escapedArtistName = escapeHtml(decodeURIComponent(artist.artistName));
             const escapedServiceName = escapeHtml(artist.serviceName);
             const escapedLatestWorkId = escapeHtml(artist.latestId);
 
