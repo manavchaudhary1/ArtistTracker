@@ -7,10 +7,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 
 @Slf4j
@@ -37,18 +42,25 @@ public class DatabaseInitializer {
             } else {
                 log.info("No backup file found, starting with fresh database");
             }
-        } catch (SQLException | IOException e) {
+        } catch (IOException e) {
             log.error("Failed to restore database from backup", e);
         }
     }
 
-    private void restoreDatabase(String scriptPath) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
+    private void restoreDatabase(String zipPath) throws IOException {
+        File targetDir = new File("data");
+        if (!targetDir.exists()) {
+            targetDir.mkdirs();
+        }
 
-            statement.execute("DROP ALL OBJECTS DELETE FILES");
-            String sql = "RUNSCRIPT FROM '" + scriptPath + "'";
-            statement.execute(sql);
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipPath))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                File outFile = new File(targetDir, entry.getName());
+                try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                    zis.transferTo(fos);
+                }
+            }
         }
     }
 }
