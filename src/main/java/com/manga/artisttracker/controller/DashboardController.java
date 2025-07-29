@@ -8,6 +8,6 @@ public class DashboardController {
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // Returns the view name, Spring will look for dashboard.jsp
+        return "dashboard";
     }
 }

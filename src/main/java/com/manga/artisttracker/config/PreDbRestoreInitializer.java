@@ -19,7 +19,6 @@ public class PreDbRestoreInitializer implements ApplicationContextInitializer<Co
             Path dataDir = Paths.get("data");
             Path dbFile = dataDir.resolve("artisttracker.mv.db");
             if (Files.notExists(dbFile)) {
-                System.out.println("Restoring DB before Spring starts...");
                 try (InputStream is = getClass().getClassLoader().getResourceAsStream("db-backup.zip")) {
                     if (is != null) {
                         ZipInputStream zis = new ZipInputStream(is);
