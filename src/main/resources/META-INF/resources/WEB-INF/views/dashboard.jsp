@@ -35,6 +35,89 @@
         .toast {
             min-width: 300px;
         }
+
+        /* Theme-specific styles */
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --input-border: #ced4da;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d3748;
+            --text-color: #ffffff;
+            --border-color: #4a5568;
+            --input-bg: #374151;
+            --input-border: #4a5568;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            background-color: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .card {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+
+        .form-control {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-border) !important;
+            color: var(--text-color) !important;
+        }
+
+        .form-control:focus {
+            background-color: var(--input-bg) !important;
+            border-color: #86b7fe !important;
+            color: var(--text-color) !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-color) !important;
+            opacity: 0.6;
+        }
+
+        .form-label {
+            color: var(--text-color) !important;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+        }
+
+        .dropdown-menu {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .dropdown-item {
+            color: var(--text-color) !important;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--border-color) !important;
+        }
+
+        .theme-dropdown {
+            min-width: 120px;
+        }
+
+        .theme-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -44,9 +127,39 @@
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <h1 class="card-title mb-4">
-                        <i class="fas fa-palette"></i> Artist Tracker Dashboard
-                    </h1>
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-palette"></i> Artist Tracker Dashboard
+                        </h1>
+
+                        <!-- Theme Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle theme-dropdown" type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sun theme-icon" id="themeIcon"></i>
+                                <span id="themeText">Light</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="setTheme('light')">
+                                        <i class="fas fa-sun theme-icon"></i>
+                                        Light
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="setTheme('dark')">
+                                        <i class="fas fa-moon theme-icon"></i>
+                                        Dark
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="setTheme('auto')">
+                                        <i class="fas fa-adjust theme-icon"></i>
+                                        Auto
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
                     <!-- Add Artist Section -->
                     <div class="row align-items-end">
@@ -114,8 +227,67 @@
 <script>
     $(document).ready(function() {
         loadAllArtists();
+        initializeTheme();
     });
 
+    // Theme management functions
+    function initializeTheme() {
+        // Get saved theme from localStorage or default to 'light'
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+    }
+
+    function setTheme(theme) {
+        localStorage.setItem('theme', theme);
+
+        let actualTheme = theme;
+
+        // Handle auto theme
+        if (theme === 'auto') {
+            actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // Apply theme
+        if (actualTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.body.classList.remove('bg-light');
+            document.body.classList.add('bg-dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            document.body.classList.remove('bg-dark');
+            document.body.classList.add('bg-light');
+        }
+
+        // Update dropdown button
+        updateThemeButton(theme, actualTheme);
+
+        // Removed toast notification for theme switching
+    }
+
+    function updateThemeButton(selectedTheme, actualTheme) {
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+
+        const themes = {
+            'light': { icon: 'fas fa-sun', text: 'Light' },
+            'dark': { icon: 'fas fa-moon', text: 'Dark' },
+            'auto': { icon: 'fas fa-adjust', text: 'Auto' }
+        };
+
+        const theme = themes[selectedTheme];
+        themeIcon.className = `${theme.icon} theme-icon`;
+        themeText.textContent = theme.text;
+    }
+
+    // Listen for system theme changes when auto theme is selected
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'auto') {
+            setTheme('auto');
+        }
+    });
+
+    // Rest of your existing JavaScript functions remain the same...
     function showLoading() {
         $('#loadingIndicator').show();
     }
@@ -215,7 +387,7 @@
                 '<div class="card-body">' +
                 '<p class="card-text">' +
                 '<strong>Latest ID:</strong> ' + escapedLatestWorkId + '<br>' +
-                '<strong>Last Updated:</strong> ' + formattedDate +
+                '<strong>Last Released:</strong> ' + formattedDate +
                 '</p>' +
                 '</div>' +
                 '<div class="card-footer bg-transparent">' +
