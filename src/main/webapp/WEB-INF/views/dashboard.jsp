@@ -57,6 +57,20 @@
             --shadow: rgba(0, 0, 0, 0.3);
         }
 
+        /* Ensure proper text color in modal body for dark mode */
+        [data-theme="dark"] .modal-content,
+        [data-theme="dark"] .modal-body,
+        [data-theme="dark"] .modal-title,
+        [data-theme="dark"] .card-title,
+        [data-theme="dark"] .card-text,
+        [data-theme="dark"] .text-muted {
+            color: var(--text-color) !important;
+        }
+
+        [data-theme="dark"] .modal-content {
+            background-color: var(--card-bg) !important;
+        }
+
         body {
             background-color: var(--bg-color) !important;
             color: var(--text-color) !important;
@@ -67,6 +81,72 @@
             background-color: var(--card-bg) !important;
             border-color: var(--border-color) !important;
             color: var(--text-color) !important;
+        }
+
+        /* Fix for card content text color in dark mode */
+        .card-body,
+        .card-footer,
+        .card-header,
+        .card-title,
+        .card-text {
+            color: var(--text-color) !important;
+        }
+
+        /* Fix for buttons in cards - maintain proper colors */
+        .card .btn-outline-primary {
+            color: #0d6efd !important;
+            border-color: #0d6efd !important;
+        }
+
+        .card .btn-outline-primary:hover {
+            background-color: #0d6efd !important;
+            border-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        .card .btn-outline-danger {
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        .card .btn-outline-danger:hover {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        .card .btn-outline-secondary {
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .card .btn-outline-secondary:hover {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: white !important;
+        }
+
+        /* Fix for small text elements - be more specific */
+        .opacity-75 {
+            opacity: 0.75 !important;
+        }
+
+        small.text-muted {
+            color: var(--text-color) !important;
+            opacity: 0.7;
+        }
+
+        /* Fix for card headers with custom background */
+        .card-header:not(.artist-info) {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+            border-bottom-color: var(--border-color) !important;
+        }
+
+        /* Fix for card footers */
+        .card-footer {
+            background-color: var(--card-bg) !important;
+            border-top-color: var(--border-color) !important;
         }
 
         .form-control {
@@ -96,6 +176,16 @@
             color: var(--text-color) !important;
         }
 
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            color: var(--text-color) !important;
+        }
+
+        .modal-title {
+            color: var(--text-color) !important;
+        }
+
         .dropdown-menu {
             background-color: var(--card-bg) !important;
             border-color: var(--border-color) !important;
@@ -117,6 +207,29 @@
             width: 16px;
             height: 16px;
             margin-right: 8px;
+        }
+
+        /* Fix for loading text */
+        .loading p {
+            color: var(--text-color) !important;
+        }
+
+        /* Fix for empty state text */
+        .text-center h4,
+        .text-center p {
+            color: var(--text-color) !important;
+            opacity: 0.7;
+        }
+
+        /* Ensure all text inherits proper color */
+        * {
+            color: inherit;
+        }
+
+        /* Override Bootstrap's text-muted specifically for empty state only */
+        [data-theme="dark"] .text-center .text-muted {
+            color: var(--text-color) !important;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -163,16 +276,16 @@
 
                     <!-- Add Artist Section -->
                     <div class="row align-items-end">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-2 mb-md-0">
                             <label for="artistName" class="form-label">Artist Name</label>
                             <input type="text" class="form-control" id="artistName" placeholder="Enter artist name">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
                             <button class="btn btn-primary w-100" onclick="addArtist()">
                                 <i class="fas fa-plus"></i> Add Artist
                             </button>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-12 col-md-3">
                             <button class="btn btn-success w-100" onclick="refreshAllArtists()">
                                 <i class="fas fa-sync-alt"></i> Refresh All
                             </button>
