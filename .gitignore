@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### App Essentials ###
+/data/
+/logs/
+/src/main/resources/db-backup.zip
