@@ -253,22 +253,22 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="setTheme('light')">
+                                    <button class="dropdown-item" onclick="setTheme('light')">
                                         <i class="fas fa-sun theme-icon"></i>
                                         Light
-                                    </a>
+                                    </button>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="setTheme('dark')">
+                                    <button class="dropdown-item"  onclick="setTheme('dark')">
                                         <i class="fas fa-moon theme-icon"></i>
                                         Dark
-                                    </a>
+                                    </button>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="setTheme('auto')">
+                                    <button class="dropdown-item"  onclick="setTheme('auto')">
                                         <i class="fas fa-adjust theme-icon"></i>
                                         Auto
-                                    </a>
+                                    </button>
                                 </li>
                             </ul>
                         </div>
@@ -388,7 +388,7 @@
         };
 
         const theme = themes[selectedTheme];
-        themeIcon.className = `${theme.icon} theme-icon`;
+        themeIcon.className = theme.icon + ' theme-icon';
         themeText.textContent = theme.text;
     }
 
@@ -400,7 +400,6 @@
         }
     });
 
-    // Rest of your existing JavaScript functions remain the same...
     function showLoading() {
         $('#loadingIndicator').show();
     }
@@ -488,6 +487,9 @@
             const escapedServiceName = escapeHtml(artist.serviceName);
             const escapedLatestWorkId = escapeHtml(artist.latestId);
 
+            // Properly escape artist name for JavaScript - this is the key fix
+            const jsEscapedArtistName = escapeForJavaScript(artist.artistName);
+
             const artistCard =
                 '<div class="col-md-6 col-lg-4 mb-4">' +
                 '<div class="card artist-card shadow-sm h-100">' +
@@ -505,10 +507,10 @@
                 '</div>' +
                 '<div class="card-footer bg-transparent">' +
                 '<div class="btn-group w-100">' +
-                '<button class="btn btn-outline-primary" onclick="checkSingleArtist(\'' + escapedArtistName + '\')">' +
+                '<button class="btn btn-outline-primary" onclick="checkSingleArtist(\'' + jsEscapedArtistName + '\')">' +
                 '<i class="fas fa-sync"></i> Refresh' +
                 '</button>' +
-                '<button class="btn btn-outline-danger" onclick="deleteArtist(\'' + escapedArtistName + '\')">' +
+                '<button class="btn btn-outline-danger" onclick="deleteArtist(\'' + jsEscapedArtistName + '\')">' +
                 '<i class="fas fa-trash"></i> Delete' +
                 '</button>' +
                 '</div>' +
@@ -524,6 +526,17 @@
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Add this new function to properly escape strings for JavaScript:
+    function escapeForJavaScript(str) {
+        if (!str) return '';
+        return str.replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'")
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t');
     }
 
     function addArtist() {
@@ -566,8 +579,9 @@
                 showToast('Artist "' + artistName + '" deleted successfully');
                 loadAllArtists();
             },
-            error: function() {
+            error: function(xhr, status, error) {
                 hideLoading();
+                console.error('Failed to delete artist:', error);
                 showToast('Failed to delete artist', 'danger');
             }
         });
@@ -586,8 +600,9 @@
                     showToast('No new works found for ' + artistName, 'info');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
                 hideLoading();
+                console.error('Failed to check artist:', error);
                 showToast('Failed to check ' + artistName, 'danger');
             }
         });
@@ -607,8 +622,9 @@
                     showToast('No new works found for any artist', 'info');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
                 hideLoading();
+                console.error('Failed to refresh all artists:', error);
                 showToast('Failed to refresh all artists', 'danger');
             }
         });
