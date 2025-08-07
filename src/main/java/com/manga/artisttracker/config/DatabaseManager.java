@@ -1,6 +1,5 @@
 package com.manga.artisttracker.config;
 
-import com.manga.artisttracker.service.H2BackupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
@@ -24,6 +23,7 @@ public class DatabaseManager {
     public void onApplicationShutdown() {
         try {
             backupService.exportDatabase(BACKUP_FILE);
+            log.info("Database backup created successfully at {}", BACKUP_FILE);
         } catch (SQLException e) {
             log.error("Failed to create database backup", e);
         }
