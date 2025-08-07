@@ -1,4 +1,4 @@
-package com.manga.artisttracker.service;
+package com.manga.artisttracker.config;
 
 import org.springframework.stereotype.Service;
 
