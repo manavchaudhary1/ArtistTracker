@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Map;
@@ -81,9 +83,14 @@ public class ArtistTrackerService {
         if (latestId.equals(previousLatestId)) {
             return;
         }
-
-        List<Integer> newIds = getNewIds(currentPostIds, Integer.parseInt(previousLatestId));
+        LocalDateTime lastUpdated = artist.getLastUpdated();
         GalleryInfo latestGalleryInfo = fetchLatestGalleryInfo(latestId);
+        assert latestGalleryInfo != null;
+        LocalDateTime galleryDate = parseGalleryDate(latestGalleryInfo.getDate());
+        if (!galleryDate.isAfter(lastUpdated)){
+            return;
+        }
+        List<Integer> newIds = getNewIds(currentPostIds, Integer.parseInt(previousLatestId));
 
         processNewWorks(newIds, newWorks);
         artistUpdateService.updateArtistRecord(artist, latestId, latestGalleryInfo, this::parseGalleryDate);
@@ -336,35 +343,27 @@ public class ArtistTrackerService {
 
     private LocalDateTime parseGalleryDate(String dateString) {
         try {
-            if (dateString.contains("-") && dateString.length() > 19) {
-                int lastHyphenIndex = dateString.lastIndexOf('-');
-                if (lastHyphenIndex > 10) {
-                    String dateWithoutTimezone = dateString.substring(0, lastHyphenIndex);
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    return LocalDateTime.parse(dateWithoutTimezone, formatter);
-                }
+            // Normalize space to 'T'
+            if (dateString.contains(" ") && !dateString.contains("T")) {
+                dateString = dateString.replace(" ", "T");
             }
 
-            DateTimeFormatter[] formatters = {
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
-            };
-
-            for (DateTimeFormatter formatter : formatters) {
-                try {
-                    return LocalDateTime.parse(dateString, formatter);
-                } catch (Exception ignored) {
-                    // Try next formatter
-                }
+            if (dateString.matches(".*[+-]\\d{2}$")) {
+                dateString += ":00"; // turns -05 into -05:00
+            } else if (dateString.matches(".*[+-]\\d{2}\\d{2}$")) {
+                // e.g., -0530 → -05:30
+                dateString = dateString.replaceAll("([+-]\\d{2})(\\d{2})$", "$1:$2");
             }
 
-            throw new RuntimeException("No suitable format found for: " + dateString);
+            // Parse using OffsetDateTime
+            OffsetDateTime offsetDateTime = OffsetDateTime.parse(dateString);
+            return offsetDateTime.withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();
         } catch (Exception e) {
             log.error("Failed to parse date '{}': {}", dateString, e.getMessage());
             throw new RuntimeException("Invalid date format: " + dateString, e);
         }
     }
+
 
     private GalleryInfo getGalleryInfo(String galleryId) throws IOException {
         String galleryUrl = GALLERY_BASE_URL + galleryId + ".js";
