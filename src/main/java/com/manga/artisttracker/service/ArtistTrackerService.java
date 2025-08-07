@@ -65,9 +65,7 @@ public class ArtistTrackerService {
         String latestId = String.valueOf(currentPostIds.getFirst());
         Optional<ArtistTracker> existingArtist = artistRepository.findByServiceNameAndArtistName(serviceName, artistName);
 
-        if (existingArtist.isPresent()) {
-            processExistingArtist(existingArtist.get(), latestId, currentPostIds, newWorks);
-        }
+        existingArtist.ifPresent(artistTracker -> processExistingArtist(artistTracker, latestId, currentPostIds, newWorks));
 
         return newWorks;
     }
@@ -308,7 +306,7 @@ public class ArtistTrackerService {
 
     @Transactional
     public ArtistTracker addArtist(String artistName) throws IOException {
-        artistName = URLEncoder.encode(artistName, StandardCharsets.UTF_8).replace("+", "%20");;
+        artistName = URLEncoder.encode(artistName, StandardCharsets.UTF_8).replace("+", "%20");
 
         Optional<ArtistTracker> existing = artistRepository.findByServiceNameAndArtistName(serviceName, artistName);
         if (existing.isPresent()) {
