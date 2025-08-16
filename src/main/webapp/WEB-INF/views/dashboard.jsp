@@ -231,6 +231,11 @@
             color: var(--text-color) !important;
             opacity: 0.7;
         }
+
+        a{
+            text-decoration: none;
+            color: var(--text-color) !important;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -495,13 +500,13 @@
                 '<div class="card artist-card shadow-sm h-100">' +
                 '<div class="card-header artist-info">' +
                 '<h5 class="mb-1">' +
-                '<i class="fas fa-user"></i> ' + escapedArtistName +
+                '<i class="fas fa-user"></i> <a href="https://hitomi.la/artist/' + escapeHtml(artist.artistName) + '.html" target="_blank"> ' + escapedArtistName + '</a>' +
                 '</h5>' +
                 '<small class="opacity-75">Service: ' + escapedServiceName + '</small>' +
                 '</div>' +
                 '<div class="card-body">' +
                 '<p class="card-text">' +
-                '<strong>Latest ID:</strong> ' + escapedLatestWorkId + '<br>' +
+                '<strong>Latest ID:</strong> <a href="https://hitomi.la/reader/' + escapedLatestWorkId + '.html#1" target="_blank">'+ escapedLatestWorkId+ '</a> <br>' +
                 '<strong>Last Released:</strong> ' + formattedDate +
                 '</p>' +
                 '</div>' +
@@ -509,7 +514,7 @@
                 '<div class="btn-group w-100">' +
                 '<button class="btn btn-outline-primary" onclick="checkSingleArtist(\'' + jsEscapedArtistName + '\')">' +
                 '<i class="fas fa-sync"></i> Refresh' +
-                '</button>' +
+                '</button>&nbsp;&nbsp;' +
                 '<button class="btn btn-outline-danger" onclick="deleteArtist(\'' + jsEscapedArtistName + '\')">' +
                 '<i class="fas fa-trash"></i> Delete' +
                 '</button>' +
@@ -644,16 +649,17 @@
             const escapedGalleryUrl = escapeHtml(work.galleryUrl);
 
             return '<div class="col-md-6 col-lg-4 work-card">' +
-                '<div class="card h-100">' +
+                '<div class="card h-100 shadow-sm bg-white">' +
                 '<img src="' + proxiedImageUrl + '"' +
-                ' class="card-img-top work-image mx-auto mt-3"' +
+                ' class="card-img-top d-block mx-auto"' +
                 ' alt="' + escapedTitle + '"' +
+                ' style="object-fit: contain;"' +
                 ' onerror="this.src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==\'">' +
                 '<div class="card-body">' +
                 '<h6 class="card-title">' + escapedTitle + '</h6>' +
                 '<p class="card-text">' +
                 '<small class="text-muted">' +
-                'Artist: ' + artistName + '<br>' +
+                'Artist: ' + artistName + '</small><br>' +
                 '<small class="text-muted">' +
                 'ID: ' + escapedId + '<br>' +
                 'Date: ' + formattedDate +
