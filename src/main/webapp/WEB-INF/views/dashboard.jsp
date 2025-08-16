@@ -500,7 +500,7 @@
                 '<div class="card artist-card shadow-sm h-100">' +
                 '<div class="card-header artist-info">' +
                 '<h5 class="mb-1">' +
-                '<i class="fas fa-user"></i> <a href="https://hitomi.la/artist/' + escapeHtml(artist.artistName) + '.html" target="_blank"> ' + escapedArtistName + '</a>' +
+                '<i class="fas fa-user"></i> <a href="https://hitomi.la/artist/' + escapeHtml(artist.artistName) + '-all.html" target="_blank"> ' + escapedArtistName + '</a>' +
                 '</h5>' +
                 '<small class="opacity-75">Service: ' + escapedServiceName + '</small>' +
                 '</div>' +
