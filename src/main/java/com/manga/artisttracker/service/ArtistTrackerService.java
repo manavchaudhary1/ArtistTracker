@@ -78,14 +78,11 @@ public class ArtistTrackerService {
     private void processExistingArtist(ArtistTracker artist, String latestId,
                                        List<Integer> currentPostIds, List<NewWorkResponse> newWorks) {
         String previousLatestId = artist.getLatestId();
-        if (latestId.equals(previousLatestId)) {
-            return;
-        }
         LocalDateTime lastUpdated = artist.getLastUpdated();
         GalleryInfo latestGalleryInfo = fetchLatestGalleryInfo(latestId);
         assert latestGalleryInfo != null;
         LocalDateTime galleryDate = parseGalleryDate(latestGalleryInfo.getDate());
-        if (!galleryDate.isAfter(lastUpdated)){
+        if (latestId.equals(previousLatestId) || galleryDate.isBefore(lastUpdated)) {
             return;
         }
         List<Integer> newIds = getNewIds(currentPostIds, Integer.parseInt(previousLatestId));
